@@ -44,7 +44,7 @@ from oslo.config import cfg
 
 from qg.core.gettextutils import _
 from qg.core import jsonutils
-from qg.core import local
+import qg.core.context
 
 
 _DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -252,7 +252,7 @@ class ContextAdapter(BaseLoggerAdapter):
 
         context = kwargs.pop('context', None)
         if not context:
-            context = getattr(local.store, 'context', None)
+            context = getattr(qg.core.context.store, 'context', None)
         if context:
             extra.update(_dictify_context(context))
 

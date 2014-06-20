@@ -21,10 +21,10 @@
 import sys
 
 from oslo.config import cfg
-
 from qg.core import exception
 from qg.core.singleton import Singleton
 from qg.core.observer import Observable
+import qg.core.context.appctx
 
 
 class NotInitializedError(exception.QException):
@@ -43,7 +43,10 @@ class QExtensionManager(Observable):
 
     def __init__(self):
         super(QExtensionManager, self).__init__()
-        self.steps = ["init_app", "configure", "run", "shutdown"]
+        self.steps = [
+            "init_app", "init_app_context", "configure",
+            "run", "shutdown"
+        ]
 
     def _try_add_listener(self, ext, evt_name):
         fn = getattr(ext, evt_name, None)
@@ -74,6 +77,9 @@ class QApplication(Singleton):
 
     version = None
 
+    app_ctx_class = qg.core.context.appctx.QApplicationContext
+    app_ctx_globals_class = qg.core.context.appctx._AppCtxGlobals
+
     def init_singleton(self):
         if self.name is None:
             raise NotInitializedError(
@@ -83,9 +89,13 @@ class QApplication(Singleton):
                 what="%s.version" % self.__class__.__name__)
         self.create()
         self._step_invoke("init_app")
+        self._step_invoke("init_app_context")
 
     def create(self):
         self._ext_mgr = QExtensionManager()
+
+    def init_app_context(self):
+        self._app_ctx = self.app_ctx_class(self)
 
     def configure(self, argv=None):
         is_argv_specified = False
@@ -115,9 +125,10 @@ class QApplication(Singleton):
             self._ext_mgr.fire_event("post_%s" % fn_name, self, rlt)
 
     def main(self):
-        self._step_invoke("configure")
-        self._step_invoke("run")
-        self._step_invoke("shutdown")
+        with self._app_ctx:
+            self._step_invoke("configure")
+            self._step_invoke("run")
+            self._step_invoke("shutdown")
 
     def make_entry_point(self):
         def wrap():
