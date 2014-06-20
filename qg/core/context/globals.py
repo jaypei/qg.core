@@ -38,7 +38,17 @@ def _find_app():
     return top.app
 
 
+def _lookup_task_object(name):
+    app = _find_app()
+    task = app._ext_mgr._task_ctx.top
+    if task is None:
+        raise RuntimeError('working outside of task context')
+    return getattr(task, name)
+
+
 # context locals
 _app_ctx_stack = LocalStack()
 current_app = LocalProxy(_find_app)
 g = LocalProxy(partial(_lookup_app_object, 'g'))
+app_ctx = None
+task_ctx = LocalProxy(partial(_lookup_task_object, 'g'))

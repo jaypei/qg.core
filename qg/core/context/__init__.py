@@ -18,7 +18,9 @@
 #
 # flake8: noqa
 
-from qg.core.context.globals import g
+from qg.core.context.globals import (
+    _app_ctx_stack, current_app, g
+)
 from qg.core.context.os_localdef import (
     WeakLocal, weak_store, strong_store, store
 )
