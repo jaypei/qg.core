@@ -18,5 +18,27 @@
 #
 
 
-class ContextBase(object):
-    __slots__ = ("__local", "__storage")
+from functools import partial
+from qg.core.context.localdef import (
+    LocalStack, LocalProxy
+)
+
+
+def _lookup_app_object(name):
+    top = _app_ctx_stack.top
+    if top is None:
+        raise RuntimeError('working outside of application context')
+    return getattr(top, name)
+
+
+def _find_app():
+    top = _app_ctx_stack.top
+    if top is None:
+        raise RuntimeError('working outside of application context')
+    return top.app
+
+
+# context locals
+_app_ctx_stack = LocalStack()
+current_app = LocalProxy(_find_app)
+g = LocalProxy(partial(_lookup_app_object, 'g'))

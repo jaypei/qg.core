@@ -16,7 +16,7 @@ import time
 import unittest
 from threading import Thread
 
-from qg.core.context import local
+from qg.core.context import localdef as local
 
 
 class LocalTestCase(unittest.TestCase):

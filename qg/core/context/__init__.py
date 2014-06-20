@@ -16,3 +16,9 @@
 #
 # Author: jaypei <jaypei97159@gmail.com>
 #
+# flake8: noqa
+
+from qg.core.context.globals import g
+from qg.core.context.os_localdef import (
+    WeakLocal, weak_store, strong_store, store
+)
