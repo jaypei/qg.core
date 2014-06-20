@@ -18,6 +18,7 @@
 #
 
 from qg.core.context.globals import _app_ctx_stack
+from qg.core.context.localdef import LocalStack
 
 
 class _AppCtxGlobals(object):
@@ -45,3 +46,17 @@ class QApplicationContext(object):
         super(QApplicationContext, self).__init__()
         self.app = app
         self.g = app.app_ctx_globals_class()
+        self._task_ctx = LocalStack()
+
+    def __enter__(self):
+        return self.enter()
+
+    def __exit__(self, type, value, trace):
+        self.exit()
+
+    def enter(self):
+        _app_ctx_stack.push(self)
+        return self
+
+    def exit(self):
+        _app_ctx_stack.pop()

@@ -124,9 +124,10 @@ class QApplication(Singleton):
             self._ext_mgr.fire_event("post_%s" % fn_name, self, rlt)
 
     def main(self):
-        self._step_invoke("configure")
-        self._step_invoke("run")
-        self._step_invoke("shutdown")
+        with self._app_ctx:
+            self._step_invoke("configure")
+            self._step_invoke("run")
+            self._step_invoke("shutdown")
 
     def make_entry_point(self):
         def wrap():
