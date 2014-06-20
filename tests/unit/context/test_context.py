@@ -13,13 +13,13 @@
 """
 
 import time
-import unittest
+from testtools import TestCase
 from threading import Thread
 
 from qg.core.context import localdef as local
 
 
-class LocalTestCase(unittest.TestCase):
+class LocalTestCase(TestCase):
 
     def test_basic_local(self):
         l = local.Local()
